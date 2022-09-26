@@ -1,6 +1,7 @@
 package sort
 
 import (
+	"flag"
 	"fmt"
 	"math/rand"
 	"sort"
@@ -8,7 +9,23 @@ import (
 	"time"
 )
 
-const testCaseCnt = 40
+var (
+	printSorted bool
+	testCaseCnt int = 40
+)
+
+func InitFlag() {
+	flag.IntVar(&testCaseCnt, "caseCnt", 40, "-testCnt 40 specfic test case count")
+	flag.BoolVar(&printSorted, "printSorted", false, "-printSorted true print sorted result")
+}
+
+func TestMain(m *testing.M) {
+	if !flag.Parsed() {
+		flag.Parse()
+	}
+
+	m.Run()
+}
 
 type testArg[T ~int] struct {
 	data []T
@@ -21,7 +38,10 @@ type SortTestCase[T ~int] struct {
 }
 
 func TestSortI(t *testing.T) {
-	sortHelper(t, "quick_sort", SortI[MyIntType](IQS{}))
+	sortHelper(t, "quick_sort", SortI[int](QS[int]{}))
+	is := InsertionSortS[int]{}
+	sortHelper(t, "insertion_sort", SortI[int](is))
+	sortHelper(t, "selection_sort", SortI[int](SelSort[int]{}))
 }
 
 func sortHelper[T ~int](t *testing.T, name string, sorter SortI[T]) {
@@ -49,12 +69,15 @@ func sortHelper[T ~int](t *testing.T, name string, sorter SortI[T]) {
 			stdSorted, stdInterval := stdSortHelper(newSlice)
 
 			if !compare(tt.args.data, stdSorted) {
-				t.Errorf("sort is unavailable, name: %s, data: %#v", tt.name, tt.args.data)
+				t.Errorf("sort is unavailable, name: %s, data: %#v, std sorted: %#v", tt.name, tt.args.data, newSlice)
 				t.FailNow()
 			}
 
 			// t.Logf("test case passed, name: %s, data: %v\n", tt.name, tt.args.data)
 			t.Logf("test case passed, name: %s, use time(microseconds), sorter: %d, std: %d\n", tt.name, sorterInterval.Microseconds(), stdInterval.Microseconds())
+			if printSorted {
+				t.Logf("sorted data: %#v", tt.args.data)
+			}
 		})
 	}
 }

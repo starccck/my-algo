@@ -1,21 +1,33 @@
 package sort
 
-type QS[T any] struct {
-	Data T
+type QS[T ~int] struct{}
+
+func (sort QS[T]) Sort(data []T) {
+	quickSort(data)
 }
 
-type IQS QS[MyIntType]
+// type IQS QS[MyIntType]
 
-var iqsV IQS
+// var iqsV IQS
 
-func (q IQS) Sort(data []MyIntType) {
+// func (q IQS) Sort(data []MyIntType) {
+// 	if len(data) <= 1 {
+// 		return
+// 	}
+
+// 	pivot := partition(data, 0, len(data)-1)
+// 	q.Sort(data[:pivot])
+// 	q.Sort(data[pivot+1:])
+// }
+
+func quickSort[T ~int](data []T) {
 	if len(data) <= 1 {
 		return
 	}
 
 	pivot := partition(data, 0, len(data)-1)
-	q.Sort(data[:pivot])
-	q.Sort(data[pivot+1:])
+	quickSort(data[:pivot])
+	quickSort(data[pivot+1:])
 }
 
 func partition[T ~int](data []T, left, right int) (parIdx int) {
